@@ -764,9 +764,171 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 
 
 /* --------------------------------------------------------------------------
-   18. Responsive
+   18. Portfolio page
    -------------------------------------------------------------------------- */
-@media (max-width: 768px) {
+.portfolio-summary {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+}
+
+.holdings-table-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.holdings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.holdings-table thead {
+    background: var(--bg-hover);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.holdings-table th {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.holdings-table th.numeric, .holdings-table td.numeric { text-align: right; }
+.holdings-table th.actions, .holdings-table td.actions { text-align: center; width: 120px; }
+
+.holdings-table td {
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+    font-size: 14px;
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.holdings-table tr:last-child td { border-bottom: none; }
+
+.row-actions {
+    display: inline-flex;
+    gap: var(--space-2);
+}
+
+.icon-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.icon-btn.danger:hover { background: var(--danger-bg); color: var(--danger); }
+.icon-btn svg { width: 14px; height: 14px; }
+
+/* Allocation donut chart wrapper */
+.allocation-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.allocation-svg {
+    width: 200px;
+    height: 200px;
+    margin: var(--space-3) 0;
+}
+
+.allocation-legend {
+    list-style: none;
+    width: 100%;
+    margin-top: var(--space-3);
+}
+
+.allocation-legend li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.allocation-legend li:last-child { border-bottom: none; }
+
+.legend-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-primary);
+}
+
+.legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.legend-percent { color: var(--text-secondary); font-weight: 500; }
+
+/* Coin selector dropdown for the add form */
+.coin-selector-wrapper { position: relative; }
+
+.coin-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 50;
+    box-shadow: var(--shadow-md);
+    display: none;
+}
+
+.coin-suggestions.open { display: block; }
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-item:hover { background: var(--bg-hover); }
+
+.suggestion-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--bg-hover);
+}
+
+
+/* --------------------------------------------------------------------------
+   19. Responsive
+   -------------------------------------------------------------------------- */
     .header-container { padding: 0 var(--space-4); height: 56px; }
     .main-nav { gap: 0; }
     .nav-link { padding: var(--space-2) var(--space-3); font-size: 13px; }
@@ -778,6 +940,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
     .chart-container { height: 380px; }
     .chart-area { height: 320px; }
     .coin-detail-price { font-size: 24px; }
+    .portfolio-summary { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
