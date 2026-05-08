@@ -1,0 +1,708 @@
+/* ==========================================================================
+   Cryptocurrency Price Monitoring System — Main Stylesheet
+   Design palette: Arctic Ice (Option B)
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   1. Design tokens (CSS variables)
+   All colors, spacing, fonts in one place. Edit here to update entire site.
+   -------------------------------------------------------------------------- */
+:root {
+    /* Backgrounds */
+    --bg-page: #F8FAFC;
+    --bg-card: #FFFFFF;
+    --bg-hover: #F2F7FB;
+    --bg-input: #FFFFFF;
+
+    /* Text */
+    --text-primary: #142F4D;
+    --text-secondary: #5A7088;
+    --text-tertiary: #8A99AC;
+    --text-inverse: #FFFFFF;
+
+    /* Accent (Arctic blue) */
+    --accent: #1E5A8A;
+    --accent-light: #3B85C4;
+    --accent-bg: #E6EFF7;
+
+    /* Semantic */
+    --success: #2E6B3F;
+    --success-bg: #DCEBDC;
+    --danger: #B23A3A;
+    --danger-bg: #F7E0E0;
+    --warning: #B87B1F;
+    --warning-bg: #FBEED1;
+
+    /* Borders */
+    --border-light: #E5EDF3;
+    --border-medium: #D0DCE7;
+    --border-strong: #A8BACB;
+
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* Radius */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 999px;
+
+    /* Typography */
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "SF Mono", Monaco, Consolas, "Courier New", monospace;
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.25s ease;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(20, 47, 77, 0.04);
+    --shadow-md: 0 2px 8px rgba(20, 47, 77, 0.06);
+}
+
+
+/* --------------------------------------------------------------------------
+   2. Reset and base
+   -------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--bg-page);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; transition: color var(--transition-fast); }
+a:hover { color: var(--accent-light); }
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select, textarea { font-family: inherit; font-size: inherit; }
+
+
+/* --------------------------------------------------------------------------
+   3. Header / Navigation
+   -------------------------------------------------------------------------- */
+.site-header {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--space-6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.logo-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-inverse);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.main-nav { display: flex; gap: var(--space-2); }
+
+.nav-link {
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.nav-link:hover { background-color: var(--bg-hover); color: var(--text-primary); }
+.nav-link.active { background-color: var(--accent-bg); color: var(--accent); }
+
+
+/* --------------------------------------------------------------------------
+   4. Layout containers
+   -------------------------------------------------------------------------- */
+.page-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-6);
+    width: 100%;
+    flex: 1;
+}
+
+.page-header { margin-bottom: var(--space-8); }
+
+.page-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+    letter-spacing: -0.5px;
+}
+
+.page-subtitle { font-size: 15px; color: var(--text-secondary); }
+
+
+/* --------------------------------------------------------------------------
+   5. Cards
+   -------------------------------------------------------------------------- */
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    transition: border-color var(--transition-fast);
+}
+
+.card:hover { border-color: var(--border-medium); }
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.card-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+
+
+/* --------------------------------------------------------------------------
+   6. Stat / Metric cards
+   -------------------------------------------------------------------------- */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+}
+
+.stat-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-2);
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.stat-change { font-size: 13px; font-weight: 500; }
+.stat-change.positive { color: var(--success); }
+.stat-change.negative { color: var(--danger); }
+
+
+/* --------------------------------------------------------------------------
+   7. Search bar
+   -------------------------------------------------------------------------- */
+.search-wrapper { position: relative; margin-bottom: var(--space-6); }
+
+.search-input {
+    width: 100%;
+    padding: var(--space-3) var(--space-4) var(--space-3) var(--space-10);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    background: var(--bg-input);
+    font-size: 14px;
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.search-input::placeholder { color: var(--text-tertiary); }
+
+.search-icon {
+    position: absolute;
+    left: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--text-tertiary);
+    pointer-events: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   8. Coin table
+   -------------------------------------------------------------------------- */
+.coin-table-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.coin-table { width: 100%; border-collapse: collapse; }
+
+.coin-table thead {
+    background: var(--bg-hover);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.coin-table th {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.coin-table th.numeric, .coin-table td.numeric { text-align: right; }
+
+.coin-table td {
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+    font-size: 14px;
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.coin-table tr:last-child td { border-bottom: none; }
+
+.coin-table tbody tr {
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.coin-table tbody tr:hover { background: var(--bg-hover); }
+
+.coin-name-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.coin-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-hover);
+}
+
+.coin-name { font-weight: 500; color: var(--text-primary); }
+
+.coin-symbol {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-left: var(--space-2);
+}
+
+.price-change {
+    font-weight: 500;
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    display: inline-block;
+}
+
+.price-change.positive { color: var(--success); background: var(--success-bg); }
+.price-change.negative { color: var(--danger); background: var(--danger-bg); }
+
+
+/* --------------------------------------------------------------------------
+   9. Buttons
+   -------------------------------------------------------------------------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.btn-primary { background: var(--accent); color: var(--text-inverse); }
+.btn-primary:hover { background: var(--accent-light); }
+
+.btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border-light);
+}
+.btn-secondary:hover { border-color: var(--border-medium); background: var(--bg-hover); }
+
+.btn-danger { background: var(--danger-bg); color: var(--danger); }
+.btn-danger:hover { background: #F0CECE; }
+
+.btn-sm { padding: var(--space-2) var(--space-3); font-size: 13px; }
+
+
+/* --------------------------------------------------------------------------
+   10. Loading / error / empty states
+   -------------------------------------------------------------------------- */
+.loading-state, .error-state, .empty-state {
+    padding: var(--space-12) var(--space-6);
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border-light);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: var(--space-4);
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-state .error-icon { font-size: 32px; margin-bottom: var(--space-3); color: var(--danger); }
+
+
+/* --------------------------------------------------------------------------
+   11. Toast notifications
+   -------------------------------------------------------------------------- */
+.toast-container {
+    position: fixed;
+    bottom: var(--space-6);
+    right: var(--space-6);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.toast {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    box-shadow: var(--shadow-md);
+    font-size: 14px;
+    min-width: 240px;
+    animation: slideIn 0.25s ease;
+}
+
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error   { border-left: 3px solid var(--danger); }
+.toast.warning { border-left: 3px solid var(--warning); }
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+}
+
+
+/* --------------------------------------------------------------------------
+   12. Footer
+   -------------------------------------------------------------------------- */
+.site-footer {
+    border-top: 1px solid var(--border-light);
+    background: var(--bg-card);
+    padding: var(--space-6);
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: var(--space-12);
+}
+
+
+/* --------------------------------------------------------------------------
+   13. Chart-page-specific styles
+   -------------------------------------------------------------------------- */
+.coin-detail-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+}
+
+.coin-detail-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--bg-hover);
+}
+
+.coin-detail-name {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.coin-detail-price {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 480px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.chart-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg-hover);
+}
+
+.toolbar-group {
+    display: flex;
+    gap: 2px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 2px;
+}
+
+.toolbar-btn {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.toolbar-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.toolbar-btn.active { background: var(--accent-bg); color: var(--accent); }
+
+.chart-area { position: relative; width: 100%; height: 420px; }
+.drawing-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+.drawing-canvas.active { pointer-events: auto; cursor: crosshair; }
+
+
+/* --------------------------------------------------------------------------
+   14. Indicator panel
+   -------------------------------------------------------------------------- */
+.indicator-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+}
+
+.indicator-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+}
+
+.indicator-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-1);
+}
+
+.indicator-value { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+.indicator-hint { font-size: 12px; color: var(--text-tertiary); margin-top: var(--space-1); }
+
+
+/* --------------------------------------------------------------------------
+   15. Forms (Portfolio add/edit)
+   -------------------------------------------------------------------------- */
+.form-group { margin-bottom: var(--space-4); }
+
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+}
+
+.form-input, .form-select {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    background: var(--bg-input);
+    font-size: 14px;
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+}
+
+.form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.form-error {
+    font-size: 12px;
+    color: var(--danger);
+    margin-top: var(--space-1);
+    min-height: 16px;
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: flex-end;
+    margin-top: var(--space-6);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+}
+
+
+/* --------------------------------------------------------------------------
+   16. Modal
+   -------------------------------------------------------------------------- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 47, 77, 0.4);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    animation: fadeIn 0.2s ease;
+}
+
+.modal {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    max-width: 480px;
+    width: 100%;
+    box-shadow: var(--shadow-md);
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+
+/* --------------------------------------------------------------------------
+   17. Prediction page
+   -------------------------------------------------------------------------- */
+.prediction-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.model-comparison {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+}
+
+
+/* --------------------------------------------------------------------------
+   18. Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    .header-container { padding: 0 var(--space-4); height: 56px; }
+    .main-nav { gap: 0; }
+    .nav-link { padding: var(--space-2) var(--space-3); font-size: 13px; }
+    .page-container { padding: var(--space-5) var(--space-4); }
+    .page-title { font-size: 22px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .coin-table th.hide-mobile, .coin-table td.hide-mobile { display: none; }
+    .coin-table th, .coin-table td { padding: var(--space-3); }
+    .chart-container { height: 380px; }
+    .chart-area { height: 320px; }
+    .coin-detail-price { font-size: 24px; }
+}
+
+@media (max-width: 480px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    .logo span { display: none; }
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrostCoin — Cryptocurrency Price Monitor</title>
+    <meta name="description" content="Real-time cryptocurrency prices, technical analysis, prediction, and portfolio tracking.">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- ============ Site header ============ -->
+    <header class="site-header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <span class="logo-mark">F</span>
+                <span>FrostCoin</span>
+            </a>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="pages/portfolio.html" class="nav-link">Portfolio</a>
+                <a href="pages/prediction.html" class="nav-link">Prediction</a>
+                <a href="pages/about.html" class="nav-link">About</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ============ Main content ============ -->
+    <main class="page-container">
+
+        <div class="page-header">
+            <h1 class="page-title">Cryptocurrency Markets</h1>
+            <p class="page-subtitle">Real-time prices, market data, and 24-hour changes for top cryptocurrencies.</p>
+        </div>
+
+        <!-- Global market stats -->
+        <div id="global-stats" class="stat-grid">
+            <!-- Populated by dashboard.js -->
+        </div>
+
+        <!-- Search -->
+        <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="search-input" class="search-input"
+                   placeholder="Search by name or symbol (e.g. Bitcoin, BTC)..."
+                   autocomplete="off">
+        </div>
+
+        <!-- Coin table -->
+        <div class="coin-table-wrapper">
+            <table class="coin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th class="numeric">Price</th>
+                        <th class="numeric">24h %</th>
+                        <th class="numeric hide-mobile">Market cap</th>
+                        <th class="numeric hide-mobile">Volume (24h)</th>
+                    </tr>
+                </thead>
+                <tbody id="coin-table-body">
+                    <!-- Populated by dashboard.js -->
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <!-- ============ Footer ============ -->
+    <footer class="site-footer">
+        <p>FrostCoin &middot; Cryptocurrency Price Monitoring System &middot;
+           Data provided by <a href="https://www.coingecko.com/" target="_blank" rel="noopener">CoinGecko</a></p>
+    </footer>
+
+    <!-- ============ Scripts (loaded in dependency order) ============ -->
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
