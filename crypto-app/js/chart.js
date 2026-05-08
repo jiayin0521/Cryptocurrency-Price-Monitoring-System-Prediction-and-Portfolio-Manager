@@ -74,6 +74,9 @@ const ChartEngine = (function () {
             volume: null
         };
 
+        // Generic overlays added by name (used by prediction page)
+        const overlays = {};
+
         // Currently active type ('line' or 'candlestick')
         let currentType = 'line';
 
@@ -325,6 +328,51 @@ const ChartEngine = (function () {
             }
         }
 
+        /**
+         * Add (or replace) a named line overlay on the chart.
+         * Used by the prediction page to draw forecast lines.
+         * @param {string} key
+         * @param {Array<{time, value}>} data
+         * @param {string} color
+         * @param {object} [opts]  optional { lineStyle, lineWidth }
+         */
+        function addOverlay(key, data, color, opts) {
+            opts = opts || {};
+            if (overlays[key]) {
+                chart.removeSeries(overlays[key]);
+                delete overlays[key];
+            }
+            if (!data || data.length === 0) return;
+
+            overlays[key] = chart.addLineSeries({
+                color: color,
+                lineWidth: opts.lineWidth || 2,
+                lineStyle: opts.lineStyle !== undefined ? opts.lineStyle : 0,
+                priceLineVisible: false,
+                lastValueVisible: false,
+                crosshairMarkerVisible: false
+            });
+            overlays[key].setData(data);
+        }
+
+        /**
+         * Remove a named overlay (or all overlays if no key given).
+         * @param {string} [key]
+         */
+        function clearOverlay(key) {
+            if (key) {
+                if (overlays[key]) {
+                    chart.removeSeries(overlays[key]);
+                    delete overlays[key];
+                }
+            } else {
+                Object.keys(overlays).forEach(function (k) {
+                    chart.removeSeries(overlays[k]);
+                    delete overlays[k];
+                });
+            }
+        }
+
         // Auto-resize the chart and overlay when window resizes
         function handleResize() {
             chart.applyOptions({
@@ -349,6 +397,8 @@ const ChartEngine = (function () {
             attachDrawingCanvas,
             setDrawingMode,
             clearDrawings,
+            addOverlay,
+            clearOverlay,
             destroy,
             getCurrentType: () => currentType
         };
