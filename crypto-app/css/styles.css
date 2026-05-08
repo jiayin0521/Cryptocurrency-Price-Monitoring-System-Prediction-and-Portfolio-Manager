@@ -72,6 +72,84 @@
 
 
 /* --------------------------------------------------------------------------
+   1b. Dark mode overrides
+   When the <html> element has the attribute data-theme="dark", these
+   variables override the defaults defined in :root above. Because every
+   color in the app references a CSS variable, switching themes is instant.
+   -------------------------------------------------------------------------- */
+html[data-theme="dark"] {
+    /* Backgrounds — deep navy, NOT pure black (research shows pure black
+       causes excessive contrast and eye strain) */
+    --bg-page: #0F1B2D;
+    --bg-card: #162338;
+    --bg-hover: #1E2D45;
+    --bg-input: #1E2D45;
+
+    /* Text */
+    --text-primary:   #E8EEF5;
+    --text-secondary: #A0B0C5;
+    --text-tertiary:  #6F8198;
+    --text-inverse:   #0F1B2D;
+
+    /* Accent — slightly brighter blue for dark backgrounds */
+    --accent:       #5BA3DD;
+    --accent-light: #7DBBE8;
+    --accent-bg:    rgba(91, 163, 221, 0.15);
+
+    /* Semantic — desaturated for dark backgrounds (Material Design guideline) */
+    --success:    #6FAF7E;
+    --success-bg: rgba(111, 175, 126, 0.15);
+    --danger:     #D67878;
+    --danger-bg:  rgba(214, 120, 120, 0.15);
+    --warning:    #DDA651;
+    --warning-bg: rgba(221, 166, 81, 0.15);
+
+    /* Borders */
+    --border-light:  #243450;
+    --border-medium: #324562;
+    --border-strong: #4A5F7E;
+
+    /* Shadows — slightly darker on dark backgrounds */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.20);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+
+/* --------------------------------------------------------------------------
+   1c. Theme toggle button
+   -------------------------------------------------------------------------- */
+.theme-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    margin-left: var(--space-2);
+}
+
+.theme-toggle:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.theme-toggle svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Show sun icon when in dark mode (so user clicks it to go to light mode),
+   show moon icon when in light mode (so user clicks it to go to dark mode) */
+.theme-toggle .icon-sun  { display: none; }
+.theme-toggle .icon-moon { display: block; }
+html[data-theme="dark"] .theme-toggle .icon-sun  { display: block; }
+html[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
+
+/* --------------------------------------------------------------------------
    2. Reset and base
    -------------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

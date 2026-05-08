@@ -33,6 +33,17 @@
             return;
         }
 
+        // When the user toggles theme, the chart's colors are baked in at
+        // creation time. Watch for the data-theme attribute change and rebuild
+        // the chart so it adopts the new theme.
+        const themeObserver = new MutationObserver(function () {
+            if (chartController) initChart();
+        });
+        themeObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+
         loadCoin();
     }
 

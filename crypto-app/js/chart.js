@@ -17,34 +17,45 @@ const ChartEngine = (function () {
     'use strict';
 
     /**
+     * Read a CSS custom property from :root.
+     * Used so the chart picks up the current theme's colors automatically.
+     * @param {string} name e.g. '--bg-card'
+     * @returns {string}
+     */
+    function readVar(name) {
+        return getComputedStyle(document.documentElement)
+            .getPropertyValue(name).trim();
+    }
+
+    /**
      * Create a new chart inside the given container.
      * @param {HTMLElement} container
      * @returns {object} chart controller with helper methods
      */
     function createChart(container) {
-        // --- Theme matching our Arctic Ice palette ---
+        // --- Theme matching our current CSS variables ---
         const chartOptions = {
             width: container.clientWidth,
             height: container.clientHeight,
             layout: {
-                background: { color: '#FFFFFF' },
-                textColor: '#5A7088',
+                background: { color: readVar('--bg-card') || '#FFFFFF' },
+                textColor:    readVar('--text-secondary') || '#5A7088',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             },
             grid: {
-                vertLines: { color: '#F2F7FB' },
-                horzLines: { color: '#F2F7FB' }
+                vertLines: { color: readVar('--border-light') || '#F2F7FB' },
+                horzLines: { color: readVar('--border-light') || '#F2F7FB' }
             },
             crosshair: {
                 mode: LightweightCharts.CrosshairMode.Normal,
-                vertLine: { color: '#A8BACB', width: 1, style: 2 },
-                horzLine: { color: '#A8BACB', width: 1, style: 2 }
+                vertLine: { color: readVar('--border-strong') || '#A8BACB', width: 1, style: 2 },
+                horzLine: { color: readVar('--border-strong') || '#A8BACB', width: 1, style: 2 }
             },
             rightPriceScale: {
-                borderColor: '#E5EDF3'
+                borderColor: readVar('--border-light') || '#E5EDF3'
             },
             timeScale: {
-                borderColor: '#E5EDF3',
+                borderColor: readVar('--border-light') || '#E5EDF3',
                 timeVisible: true,
                 secondsVisible: false
             },
@@ -85,18 +96,20 @@ const ChartEngine = (function () {
             if (series.candlestick) { chart.removeSeries(series.candlestick); series.candlestick = null; }
 
             if (type === 'candlestick') {
+                const upColor   = readVar('--success') || '#2E6B3F';
+                const downColor = readVar('--danger')  || '#B23A3A';
                 series.candlestick = chart.addCandlestickSeries({
-                    upColor:       '#2E6B3F',
-                    downColor:     '#B23A3A',
-                    borderUpColor: '#2E6B3F',
-                    borderDownColor: '#B23A3A',
-                    wickUpColor:   '#2E6B3F',
-                    wickDownColor: '#B23A3A'
+                    upColor:         upColor,
+                    downColor:       downColor,
+                    borderUpColor:   upColor,
+                    borderDownColor: downColor,
+                    wickUpColor:     upColor,
+                    wickDownColor:   downColor
                 });
                 series.candlestick.setData(data);
             } else {
                 series.line = chart.addLineSeries({
-                    color: '#1E5A8A',
+                    color: readVar('--accent') || '#1E5A8A',
                     lineWidth: 2,
                     priceLineVisible: false,
                     lastValueVisible: true
