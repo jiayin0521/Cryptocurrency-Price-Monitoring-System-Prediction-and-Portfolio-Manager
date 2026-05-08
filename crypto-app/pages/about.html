@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About &amp; Help — FrostCoin</title>
+    <link rel="stylesheet" href="../css/styles.css">
+
+    <!-- Apply saved theme immediately to avoid a flash of light theme on load -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('frostcoin-theme');
+                if (saved === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (e) { /* localStorage blocked — default to light */ }
+        })();
+    </script>
+</head>
+<body>
+
+    <!-- ============ Site header ============ -->
+    <header class="site-header">
+        <div class="header-container">
+            <a href="../index.html" class="logo">
+                <span class="logo-mark">F</span>
+                <span>FrostCoin</span>
+            </a>
+            <nav class="main-nav">
+                <a href="../index.html" class="nav-link">Dashboard</a>
+                <a href="portfolio.html" class="nav-link">Portfolio</a>
+                <a href="prediction.html" class="nav-link">Prediction</a>
+                <a href="about.html" class="nav-link">About</a>
+
+                <!-- Theme toggle: SVG icons drawn from scratch -->
+                <button id="theme-toggle" class="theme-toggle"
+                        aria-label="Toggle light or dark theme" title="Toggle theme">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"/>
+                        <line x1="12" y1="2"  x2="12" y2="4"/>
+                        <line x1="12" y1="20" x2="12" y2="22"/>
+                        <line x1="2"  y1="12" x2="4"  y2="12"/>
+                        <line x1="20" y1="12" x2="22" y2="12"/>
+                        <line x1="4.93"  y1="4.93"  x2="6.34"  y2="6.34"/>
+                        <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/>
+                        <line x1="4.93"  y1="19.07" x2="6.34"  y2="17.66"/>
+                        <line x1="17.66" y1="6.34"  x2="19.07" y2="4.93"/>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ============ Main content ============ -->
+    <main class="page-container">
+
+        <div class="page-header">
+            <h1 class="page-title">About &amp; Help</h1>
+            <p class="page-subtitle">Learn what FrostCoin does and how to use each feature.</p>
+        </div>
+
+        <!-- ===== Hero / Intro ===== -->
+        <div class="about-hero">
+            <h2>What is FrostCoin?</h2>
+            <p>
+                FrostCoin is a cryptocurrency price monitoring system that helps you
+                track live prices, analyze market trends with technical indicators,
+                forecast future movements, and manage your portfolio &mdash; all in one
+                place. Built with HTML5, CSS3, and JavaScript, it runs entirely in
+                your browser with no signup required.
+            </p>
+        </div>
+
+        <!-- ===== Features overview ===== -->
+        <h2 class="section-title">What you can do</h2>
+        <div class="feature-grid">
+            <!-- Feature 1: Live Prices -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                </div>
+                <div class="feature-title">Live prices</div>
+                <p class="feature-desc">
+                    Track real-time prices, 24-hour changes, and market data for the
+                    top 50 cryptocurrencies. Auto-refreshes every minute.
+                </p>
+            </div>
+
+            <!-- Feature 2: Charts -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="20" x2="12" y2="10"/>
+                        <line x1="18" y1="20" x2="18" y2="4"/>
+                        <line x1="6"  y1="20" x2="6"  y2="14"/>
+                        <line x1="3"  y1="20" x2="21" y2="20"/>
+                    </svg>
+                </div>
+                <div class="feature-title">Interactive charts</div>
+                <p class="feature-desc">
+                    Line and candlestick views with zoom, pan, drawing tools, and
+                    annotations. Choose from 24h, 7d, 30d, 90d, or 1-year ranges.
+                </p>
+            </div>
+
+            <!-- Feature 3: Indicators -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18"/>
+                        <path d="M7 14l4-4 4 4 5-7"/>
+                    </svg>
+                </div>
+                <div class="feature-title">Technical indicators</div>
+                <p class="feature-desc">
+                    Built-in moving averages (MA20, MA50), RSI, MACD, and volume bars
+                    to help identify market momentum and trends.
+                </p>
+            </div>
+
+            <!-- Feature 4: Prediction -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <div class="feature-title">Price prediction</div>
+                <p class="feature-desc">
+                    Two statistical forecasting models &mdash; linear regression and
+                    moving average &mdash; with side-by-side accuracy comparison.
+                </p>
+            </div>
+
+            <!-- Feature 5: Portfolio -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                    </svg>
+                </div>
+                <div class="feature-title">Portfolio manager</div>
+                <p class="feature-desc">
+                    Track your holdings, calculate live profit and loss, and visualize
+                    asset allocation with an interactive donut chart.
+                </p>
+            </div>
+
+            <!-- Feature 6: Themes -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    </svg>
+                </div>
+                <div class="feature-title">Light &amp; dark mode</div>
+                <p class="feature-desc">
+                    Switch between light and dark themes anytime. Your preference is
+                    remembered for next time you visit.
+                </p>
+            </div>
+        </div>
+
+        <!-- ===== How-to guides ===== -->
+        <h2 class="section-title">How to use</h2>
+
+        <!-- Guide 1: Track a coin -->
+        <div class="card" style="margin-bottom: var(--space-4);">
+            <h3 class="card-title" style="margin-bottom: var(--space-3);">Tracking a cryptocurrency</h3>
+            <ol class="steps-list">
+                <li>
+                    <strong>Open the Dashboard</strong>
+                    The main page shows the top 50 cryptocurrencies sorted by market cap.
+                </li>
+                <li>
+                    <strong>Use the search bar</strong>
+                    Type a coin name (e.g. &ldquo;Bitcoin&rdquo;) or symbol (e.g. &ldquo;BTC&rdquo;)
+                    to filter the list.
+                </li>
+                <li>
+                    <strong>Click on a coin</strong>
+                    Click any row to open the detailed view with charts, indicators, and
+                    market data.
+                </li>
+            </ol>
+        </div>
+
+        <!-- Guide 2: Read the charts -->
+        <div class="card" style="margin-bottom: var(--space-4);">
+            <h3 class="card-title" style="margin-bottom: var(--space-3);">Reading the chart</h3>
+            <ol class="steps-list">
+                <li>
+                    <strong>Choose a time range</strong>
+                    Use the 24H / 7D / 30D / 90D / 1Y buttons in the chart toolbar.
+                </li>
+                <li>
+                    <strong>Switch chart type</strong>
+                    Click &ldquo;Line&rdquo; for a simple price line, or &ldquo;Candles&rdquo;
+                    to see open/high/low/close candlesticks.
+                </li>
+                <li>
+                    <strong>Zoom and pan</strong>
+                    Scroll on the chart to zoom in and out. Click and drag to pan
+                    across time.
+                </li>
+                <li>
+                    <strong>Add moving averages</strong>
+                    Click MA 20 or MA 50 in the toolbar to overlay moving average lines.
+                </li>
+                <li>
+                    <strong>Use drawing tools</strong>
+                    The drawing buttons let you mark trend lines, horizontal support /
+                    resistance levels, and annotations directly on the chart. Click the
+                    &times; button to clear all drawings.
+                </li>
+            </ol>
+        </div>
+
+        <!-- Guide 3: Manage portfolio -->
+        <div class="card" style="margin-bottom: var(--space-4);">
+            <h3 class="card-title" style="margin-bottom: var(--space-3);">Managing your portfolio</h3>
+            <ol class="steps-list">
+                <li>
+                    <strong>Open the Portfolio page</strong>
+                    Click &ldquo;Portfolio&rdquo; in the navigation menu.
+                </li>
+                <li>
+                    <strong>Add a holding</strong>
+                    Click &ldquo;+ Add holding&rdquo;. Search for a coin, enter the
+                    amount you own and the price you paid per coin.
+                </li>
+                <li>
+                    <strong>View profit &amp; loss</strong>
+                    The summary cards show total value, total cost, and your live P/L.
+                    The donut chart shows how your portfolio is allocated.
+                </li>
+                <li>
+                    <strong>Edit or delete a holding</strong>
+                    Each row has pencil and trash icons to update or remove it.
+                </li>
+                <li>
+                    <strong>Reset everything</strong>
+                    The &ldquo;Reset&rdquo; button at the top wipes all holdings (this
+                    cannot be undone).
+                </li>
+            </ol>
+        </div>
+
+        <!-- Guide 4: Use prediction -->
+        <div class="card" style="margin-bottom: var(--space-4);">
+            <h3 class="card-title" style="margin-bottom: var(--space-3);">Running price predictions</h3>
+            <ol class="steps-list">
+                <li>
+                    <strong>Open the Prediction page</strong>
+                    Click &ldquo;Prediction&rdquo; in the navigation menu.
+                </li>
+                <li>
+                    <strong>Pick a cryptocurrency</strong>
+                    Choose any coin from the dropdown.
+                </li>
+                <li>
+                    <strong>Configure the forecast</strong>
+                    Choose how much history to use, how far ahead to forecast, and the
+                    moving average window size.
+                </li>
+                <li>
+                    <strong>Click &ldquo;Run prediction&rdquo;</strong>
+                    Both models run together. The chart shows historical data plus
+                    both forecast lines.
+                </li>
+                <li>
+                    <strong>Compare the models</strong>
+                    The accuracy cards (MAE, RMSE, MAPE) show which model fit the past
+                    data best. Lower numbers mean smaller errors.
+                </li>
+            </ol>
+        </div>
+
+        <!-- ===== FAQ ===== -->
+        <h2 class="section-title">Frequently asked questions</h2>
+        <ul class="faq-list">
+
+            <li class="faq-item">
+                <button class="faq-question">
+                    What does RSI mean and how do I read it?
+                    <svg class="faq-toggle-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    RSI (Relative Strength Index) is a momentum indicator that ranges
+                    from 0 to 100. Traditionally, an RSI above 70 suggests the asset
+                    may be <em>overbought</em> (price has risen too fast and could
+                    reverse), while an RSI below 30 suggests it may be <em>oversold</em>
+                    (price has fallen too fast and could bounce). Values between 30
+                    and 70 indicate neutral momentum.
+                </div>
+            </li>
+
+            <li class="faq-item">
+                <button class="faq-question">
+                    What is MACD?
+                    <svg class="faq-toggle-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    MACD (Moving Average Convergence Divergence) compares a fast
+                    exponential moving average (12 periods) with a slow one (26
+                    periods). When MACD is above its signal line (9-period EMA of
+                    MACD), momentum is generally bullish. When MACD is below the
+                    signal line, momentum is generally bearish.
+                </div>
+            </li>
+
+            <li class="faq-item">
+                <button class="faq-question">
+                    How accurate is the price prediction?
+                    <svg class="faq-toggle-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    The two models in FrostCoin (linear regression and moving average)
+                    are simple statistical forecasts based on historical price data
+                    only. They cannot account for news, regulation, sentiment, or
+                    other real-world events that drive cryptocurrency prices. The
+                    accuracy metrics (MAE, RMSE, MAPE) shown on the prediction page
+                    measure how well each model fits past data &mdash; not how well it
+                    will predict the future. <strong>These predictions are not
+                    financial advice.</strong>
+                </div>
+            </li>
+
+            <li class="faq-item">
+                <button class="faq-question">
+                    Is my portfolio data safe?
+                    <svg class="faq-toggle-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    All portfolio data is stored locally in your own browser using
+                    localStorage. Nothing is sent to any server. Clearing your browser
+                    data or using a different browser will remove your portfolio. There
+                    is no signup, no account, and no cloud sync.
+                </div>
+            </li>
+
+            <li class="faq-item">
+                <button class="faq-question">
+                    Where does the price data come from?
+                    <svg class="faq-toggle-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    All cryptocurrency data comes from the
+                    <a href="https://www.coingecko.com/" target="_blank" rel="noopener">CoinGecko</a>
+                    public API. CoinGecko aggregates data from hundreds of exchanges
+                    and updates roughly every 1&ndash;2 minutes. FrostCoin caches API
+                    responses for 60 seconds to stay within free-tier rate limits.
+                </div>
+            </li>
+
+            <li class="faq-item">
+                <button class="faq-question">
+                    Why isn&rsquo;t the data loading?
+                    <svg class="faq-toggle-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    A few common causes: (1) you&rsquo;re offline &mdash; FrostCoin needs
+                    internet to fetch live prices; (2) the CoinGecko free API is
+                    temporarily rate-limited &mdash; wait a minute and refresh;
+                    (3) your browser is blocking the request &mdash; try a different
+                    browser or check the developer console for errors.
+                </div>
+            </li>
+
+            <li class="faq-item">
+                <button class="faq-question">
+                    What do MAE, RMSE, and MAPE mean?
+                    <svg class="faq-toggle-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    These are accuracy metrics that measure how close a model&rsquo;s
+                    predictions were to the actual prices.
+                    <strong>MAE</strong> (Mean Absolute Error) is the average absolute
+                    difference in dollars.
+                    <strong>RMSE</strong> (Root Mean Squared Error) is similar but
+                    penalizes large errors more heavily.
+                    <strong>MAPE</strong> (Mean Absolute Percentage Error) expresses
+                    the error as a percentage of the actual price, which is useful
+                    when comparing different coins. Lower numbers indicate better fit.
+                </div>
+            </li>
+
+            <li class="faq-item">
+                <button class="faq-question">
+                    Can I trade or buy crypto from this site?
+                    <svg class="faq-toggle-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="faq-answer">
+                    No. FrostCoin is a monitoring and analysis tool only. You cannot
+                    buy, sell, or transfer cryptocurrency through this site. The
+                    portfolio feature is for tracking purposes &mdash; you record what
+                    you already own elsewhere.
+                </div>
+            </li>
+
+        </ul>
+
+        <!-- ===== Tech stack ===== -->
+        <h2 class="section-title">Built with</h2>
+        <div class="card">
+            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.7;">
+                FrostCoin is built using only client-side web technologies. No
+                server, no database, no backend.
+            </p>
+            <div class="tech-stack">
+                <span class="tech-pill">HTML5</span>
+                <span class="tech-pill">CSS3 (custom properties)</span>
+                <span class="tech-pill">JavaScript (ES6+)</span>
+                <span class="tech-pill">SVG</span>
+                <span class="tech-pill">localStorage API</span>
+                <span class="tech-pill">Fetch API</span>
+                <span class="tech-pill">CoinGecko API</span>
+                <span class="tech-pill">TradingView Lightweight Charts</span>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="disclaimer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9"  x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <div>
+                    <strong>Disclaimer</strong>
+                    FrostCoin is an academic project developed for educational purposes
+                    only. The price predictions and technical indicators provided here
+                    are based on simple statistical models and historical data &mdash;
+                    they should not be used as financial advice. Always do your own
+                    research before making any investment decision.
+                </div>
+            </div>
+        </div>
+
+        <!-- Course context -->
+        <p style="text-align: center; color: var(--text-tertiary); font-size: 12px; margin-top: var(--space-8);">
+            Developed for TWT6223 &mdash; Web Techniques and Applications &mdash; 2026
+        </p>
+
+    </main>
+
+    <!-- ============ Footer ============ -->
+    <footer class="site-footer">
+        <p>FrostCoin &middot; Cryptocurrency Price Monitoring System &middot;
+           Data provided by <a href="https://www.coingecko.com/" target="_blank" rel="noopener">CoinGecko</a></p>
+    </footer>
+
+    <!-- ============ Application scripts ============ -->
+    <script src="../js/theme.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/about.js"></script>
+</body>
+</html>
