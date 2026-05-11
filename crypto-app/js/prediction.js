@@ -87,7 +87,7 @@ const Prediction = (function () {
             const x = historical.length - 1 + i;
             forecast.push({
                 time:  Math.round(lastTime + i * stepSeconds),
-                value: model.slope * x + model.intercept
+                value: Math.max(0, model.slope * x + model.intercept)
             });
         }
         return { forecast, fittedLine, model };

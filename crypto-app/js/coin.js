@@ -21,6 +21,7 @@
     let volumeData = [];    // Array<{time, value, color}>
     let currentRange = 30;  // days
     let activeIndicators = { ma20: false, ma50: false };
+    let refreshTimer = null;
 
     function init() {
         Utils.highlightActiveNav();
@@ -65,9 +66,21 @@
             buildChartData(chartHistory);
             initChart();
             renderIndicators();
+            prefetchRanges();
         } catch (err) {
             Utils.showError(content, err.message);
         }
+    }
+
+    // Silently pre-fetch all other time ranges so switching is instant from cache.
+    // Staggered 2 seconds apart to avoid triggering CoinGecko rate limits.
+    function prefetchRanges() {
+        const allRanges = [1, 7, 30, 90, 365];
+        allRanges.filter(r => r !== currentRange).forEach(function (days, i) {
+            setTimeout(function () {
+                Api.getMarketChart(coinId, days).catch(function () {});
+            }, (i + 1) * 2000);
+        });
     }
 
     /**
@@ -109,9 +122,9 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">All-time high</div>
-                    <div class="stat-value">${Utils.formatCurrency(md.ath.usd)}</div>
+                    <div class="stat-value">${md.ath.usd ? Utils.formatCurrency(md.ath.usd) : 'N/A'}</div>
                     <div class="stat-change ${Utils.priceChangeClass(md.ath_change_percentage.usd)}">
-                        ${Utils.formatPercent(md.ath_change_percentage.usd)}
+                        ${md.ath_change_percentage.usd ? Utils.formatPercent(md.ath_change_percentage.usd) : ''}
                     </div>
                 </div>
                 <div class="stat-card">
@@ -237,20 +250,22 @@
         const container = document.getElementById('chart-canvas');
         const drawingCanvas = document.getElementById('drawing-canvas');
 
+        const savedDrawings = chartController ? chartController.getDrawings() : [];
         if (chartController) chartController.destroy();
         chartController = ChartEngine.createChart(container);
         chartController.setChartType('line', lineData);
         chartController.setVolume(volumeData);
         chartController.attachDrawingCanvas(drawingCanvas);
+        if (savedDrawings.length) chartController.restoreDrawings(savedDrawings);
 
         // Re-apply active indicators
         if (activeIndicators.ma20) {
             chartController.setMovingAverage('ma20',
-                Indicators.simpleMovingAverage(lineData, 20), '#3B85C4');
+                Indicators.simpleMovingAverage(lineData, 20), '#F97316');
         }
         if (activeIndicators.ma50) {
             chartController.setMovingAverage('ma50',
-                Indicators.simpleMovingAverage(lineData, 50), '#B87B1F');
+                Indicators.simpleMovingAverage(lineData, 50), '#A855F7');
         }
     }
 
@@ -267,7 +282,10 @@
                 document.querySelectorAll('#range-group .toolbar-btn')
                     .forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                refreshChart();
+                // Debounce: cancel the previous pending refresh so rapid clicks
+                // only fire one API call (the last selected range).
+                clearTimeout(refreshTimer);
+                refreshTimer = setTimeout(refreshChart, 300);
             });
         });
 
@@ -296,13 +314,13 @@
                         activeIndicators.ma20
                             ? Indicators.simpleMovingAverage(lineData, 20)
                             : null,
-                        '#3B85C4');
+                        '#F97316');
                 } else if (ind === 'ma50') {
                     chartController.setMovingAverage('ma50',
                         activeIndicators.ma50
                             ? Indicators.simpleMovingAverage(lineData, 50)
                             : null,
-                        '#B87B1F');
+                        '#A855F7');
                 }
             });
         });
@@ -324,6 +342,12 @@
                     Utils.showToast('Drawing mode: ' + mode, 'success', 1500);
                 }
             });
+        });
+
+        // Deactivate the annotation button when annotation mode auto-exits after placing
+        document.getElementById('chart-area').addEventListener('drawing:done', function () {
+            document.querySelectorAll('#draw-group .toolbar-btn')
+                .forEach(b => b.classList.remove('active'));
         });
 
         // Clear drawings
@@ -353,11 +377,11 @@
             // Re-apply MAs
             if (activeIndicators.ma20) {
                 chartController.setMovingAverage('ma20',
-                    Indicators.simpleMovingAverage(lineData, 20), '#3B85C4');
+                    Indicators.simpleMovingAverage(lineData, 20), '#F97316');
             }
             if (activeIndicators.ma50) {
                 chartController.setMovingAverage('ma50',
-                    Indicators.simpleMovingAverage(lineData, 50), '#B87B1F');
+                    Indicators.simpleMovingAverage(lineData, 50), '#A855F7');
             }
 
             renderIndicators();

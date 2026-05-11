@@ -217,12 +217,28 @@ const ChartEngine = (function () {
             redrawShapes();
         }
 
+        function getDrawings() {
+            return drawings.slice();
+        }
+
+        function restoreDrawings(saved) {
+            drawings = saved.slice();
+            redrawShapes();
+        }
+
         function getMousePos(e) {
             const rect = drawingCanvas.getBoundingClientRect();
             return {
                 x: e.clientX - rect.left,
                 y: e.clientY - rect.top
             };
+        }
+
+        // Returns the right draw colour for the current theme
+        function drawColor() {
+            return document.documentElement.getAttribute('data-theme') === 'dark'
+                ? '#22C55E'   // bright green — visible on dark backgrounds
+                : '#16A34A';  // dark green   — visible on light backgrounds
         }
 
         function onDrawStart(e) {
@@ -243,6 +259,10 @@ const ChartEngine = (function () {
                 }
                 isDrawing = false;
                 startPoint = null;
+                // Auto-exit annotation mode so the label doesn't keep following the mouse
+                setDrawingMode(null);
+                drawingCanvas.dispatchEvent(new CustomEvent('drawing:done', { bubbles: true }));
+                return;
             }
         }
 
@@ -252,7 +272,7 @@ const ChartEngine = (function () {
 
             // Live preview — redraw saved shapes plus the current one
             redrawShapes();
-            drawingCtx.strokeStyle = '#1E5A8A';
+            drawingCtx.strokeStyle = drawColor();
             drawingCtx.lineWidth = 1.5;
             drawingCtx.beginPath();
 
@@ -292,10 +312,11 @@ const ChartEngine = (function () {
             if (!drawingCtx || !drawingCanvas) return;
             drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
 
+            const color = drawColor();
             for (const s of drawings) {
-                drawingCtx.strokeStyle = '#1E5A8A';
-                drawingCtx.fillStyle = '#1E5A8A';
-                drawingCtx.lineWidth = 1.5;
+                drawingCtx.strokeStyle = color;
+                drawingCtx.fillStyle   = color;
+                drawingCtx.lineWidth   = 1.5;
 
                 if (s.type === 'line') {
                     drawingCtx.beginPath();
@@ -310,19 +331,20 @@ const ChartEngine = (function () {
                     drawingCtx.stroke();
                     drawingCtx.setLineDash([]);
                 } else if (s.type === 'annotation') {
-                    // Pin marker + text label
+                    // Pin dot
                     drawingCtx.beginPath();
                     drawingCtx.arc(s.x, s.y, 5, 0, Math.PI * 2);
                     drawingCtx.fill();
 
+                    // Label box — always white bg with dark text for readability
                     drawingCtx.font = '12px -apple-system, sans-serif';
-                    const padding = 6;
+                    const padding   = 6;
                     const textWidth = drawingCtx.measureText(s.text).width;
-                    drawingCtx.fillStyle = '#FFFFFF';
+                    drawingCtx.fillStyle   = '#FFFFFF';
                     drawingCtx.fillRect(s.x + 8, s.y - 18, textWidth + padding * 2, 22);
-                    drawingCtx.strokeStyle = '#1E5A8A';
+                    drawingCtx.strokeStyle = color;
                     drawingCtx.strokeRect(s.x + 8, s.y - 18, textWidth + padding * 2, 22);
-                    drawingCtx.fillStyle = '#142F4D';
+                    drawingCtx.fillStyle   = '#142F4D';
                     drawingCtx.fillText(s.text, s.x + 8 + padding, s.y - 3);
                 }
             }
@@ -385,6 +407,12 @@ const ChartEngine = (function () {
 
         function destroy() {
             window.removeEventListener('resize', handleResize);
+            if (drawingCanvas) {
+                drawingCanvas.removeEventListener('mousedown', onDrawStart);
+                drawingCanvas.removeEventListener('mousemove', onDrawMove);
+                drawingCanvas.removeEventListener('mouseup',   onDrawEnd);
+                drawingCanvas.removeEventListener('mouseleave', onDrawEnd);
+            }
             chart.remove();
         }
 
@@ -397,6 +425,8 @@ const ChartEngine = (function () {
             attachDrawingCanvas,
             setDrawingMode,
             clearDrawings,
+            getDrawings,
+            restoreDrawings,
             addOverlay,
             clearOverlay,
             destroy,

@@ -19,8 +19,10 @@ const Utils = (function () {
         if (value === null || value === undefined || isNaN(value)) return '—';
 
         let decimals = 2;
-        if (value < 1)    decimals = 6;
-        if (value < 0.01) decimals = 8;
+        if (value < 1)        decimals = 6;
+        if (value < 0.01)     decimals = 8;
+        if (value < 0.0001)   decimals = 10;
+        if (value < 0.000001) decimals = 12;
 
         return new Intl.NumberFormat('en-US', {
             style: 'currency',

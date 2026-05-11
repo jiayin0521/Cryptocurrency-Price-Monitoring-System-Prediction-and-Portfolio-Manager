@@ -50,6 +50,12 @@
             return;
         }
 
+        // Show loading spinner while prices are being fetched
+        const statsEl = document.getElementById('summary-stats');
+        if (statsEl && statsEl.innerHTML === '') {
+            Utils.showLoading(statsEl, 'Loading prices...');
+        }
+
         // Fetch current prices for every coin in the portfolio
         try {
             const ids = Storage.getUniqueCoinIds();
@@ -112,7 +118,7 @@
             </div>
             <div class="stat-card">
                 <div class="stat-label">Profit / loss</div>
-                <div class="stat-value ${profitClass === 'positive' ? '' : ''}"
+                <div class="stat-value"
                      style="color: ${totalProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">
                     ${Utils.formatCurrency(totalProfit)}
                 </div>
@@ -282,7 +288,7 @@
                         <span class="legend-swatch" style="background:${s.color}"></span>
                         ${escapeHtml(s.label)}
                     </span>
-                    <span class="legend-percent">${(s.fraction * 100).toFixed(1)}%</span>
+                    <span class="legend-percent">${s.fraction * 100 < 0.01 ? '<0.01%' : (s.fraction * 100).toFixed(2) + '%'}</span>
                 </li>
             `;
         }).join('');
@@ -389,8 +395,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="form-price">Buy price (USD)</label>
-                        <input type="number" id="form-price" class="form-input"
-                               placeholder="0.00" step="any" min="0"
+                        <input type="text" id="form-price" class="form-input"
+                               placeholder="e.g. 0.00000002354" inputmode="decimal"
                                value="${isEdit ? h.buyPrice : ''}">
                         <div class="form-error" id="err-price"></div>
                     </div>
