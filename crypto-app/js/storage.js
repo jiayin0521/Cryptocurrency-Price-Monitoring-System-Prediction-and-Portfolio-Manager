@@ -23,7 +23,7 @@
 const Storage = (function () {
     'use strict';
 
-    const KEY = 'frostcoin-portfolio';
+    const KEY = 'crypcoin-portfolio';
 
     /**
      * Generate a unique ID for a new holding.

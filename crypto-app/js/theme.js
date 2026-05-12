@@ -15,7 +15,7 @@
 const Theme = (function () {
     'use strict';
 
-    const STORAGE_KEY = 'frostcoin-theme';
+    const STORAGE_KEY = 'crypcoin-theme';
     const LIGHT = 'light';
     const DARK  = 'dark';
 
