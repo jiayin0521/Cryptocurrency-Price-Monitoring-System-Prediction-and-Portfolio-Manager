@@ -91,7 +91,8 @@ const Indicators = (function () {
             avgGain = (avgGain * (period - 1) + gain) / period;
             avgLoss = (avgLoss * (period - 1) + loss) / period;
 
-            const rs = avgLoss === 0 ? 100 : avgGain / avgLoss;
+            if (avgLoss === 0) { result.push({ time: data[i].time, value: 100 }); continue; }
+            const rs  = avgGain / avgLoss;
             const rsi = 100 - (100 / (1 + rs));
 
             result.push({ time: data[i].time, value: rsi });
