@@ -55,26 +55,31 @@
     /**
      * Load coin information and historical data.
      */
-    async function loadCoin() {
-        const content = document.getElementById('coin-content');
-        Utils.showLoading(content, 'Loading coin data...');
+async function loadCoin() {
+    const content = document.getElementById('coin-content');
+    Utils.showLoading(content, 'Loading coin data...');
 
-        try {
-            // Fetch detail and chart data in parallel
-            const [detail, chartHistory] = await Promise.all([
-                Api.getCoinDetail(coinId),
-                Api.getMarketChart(coinId, currentRange)
-            ]);
+    try {
+        // Fetch detail and chart data in parallel
+        const [detail, chartHistory] = await Promise.all([
+            Api.getCoinDetail(coinId).catch(function (err) {
+                if (err.message === 'not_found') {
+                    throw new Error('Cryptocurrency "' + coinId + '" not found.');
+                }
+                throw new Error('Could not load coin details. Please try again.');
+            }),
+            Api.getMarketChart(coinId, currentRange)
+        ]);
 
-            renderCoinPage(detail);
-            buildChartData(chartHistory);
-            initChart();
-            renderIndicators();
-            prefetchRanges();
-        } catch (err) {
-            Utils.showError(content, err.message);
-        }
+        renderCoinPage(detail);
+        buildChartData(chartHistory);
+        initChart();
+        renderIndicators();
+        prefetchRanges();
+    } catch (err) {
+        Utils.showError(content, err.message);
     }
+}
 
     /**
      * Silently pre-fetch all remaining time ranges into the API cache.
