@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"d:\\\\uni\\\\y2s3\\\\TWT6223\\\\Asg\\\\crypto-app-stage2\\\\crypto-app\" -Recurse -File)",
+      "Bash(Select-Object -First 50)",
+      "Bash(Format-Table FullName)"
+    ]
+  }
+}

@@ -193,6 +193,7 @@ const ChartEngine = (function () {
             chart.timeScale().subscribeVisibleTimeRangeChange(redrawShapes);
         }
 
+        /** Sync the drawing canvas pixel size to its CSS size; redraw all saved shapes. */
         function resizeDrawingCanvas() {
             if (!drawingCanvas) return;
             drawingCanvas.width  = drawingCanvas.offsetWidth;
@@ -212,20 +213,34 @@ const ChartEngine = (function () {
             }
         }
 
+        /** Remove all user drawings from the overlay canvas. */
         function clearDrawings() {
             drawings = [];
             redrawShapes();
         }
 
+        /**
+         * Return a shallow copy of all saved drawing shapes.
+         * @returns {Array<object>}
+         */
         function getDrawings() {
             return drawings.slice();
         }
 
+        /**
+         * Replace current drawings with a previously saved array.
+         * @param {Array<object>} saved
+         */
         function restoreDrawings(saved) {
             drawings = saved.slice();
             redrawShapes();
         }
 
+        /**
+         * Translate a mouse event to canvas-relative coordinates.
+         * @param {MouseEvent} e
+         * @returns {{x: number, y: number}}
+         */
         function getMousePos(e) {
             const rect = drawingCanvas.getBoundingClientRect();
             return {
@@ -234,80 +249,170 @@ const ChartEngine = (function () {
             };
         }
 
-        // Returns the right draw colour for the current theme
+        /**
+         * Return the drawing stroke color for the active theme.
+         * Uses bright green on dark backgrounds, dark green on light backgrounds.
+         * @returns {string} CSS color string.
+         */
         function drawColor() {
             return document.documentElement.getAttribute('data-theme') === 'dark'
                 ? '#22C55E'   // bright green — visible on dark backgrounds
                 : '#16A34A';  // dark green   — visible on light backgrounds
         }
 
-        function onDrawStart(e) {
-            if (!drawingMode) return;
-            isDrawing = true;
-            startPoint = getMousePos(e);
+        /**
+         * Handle mousedown: begin a drawing operation or place an annotation.
+         * @param {MouseEvent} e
+         */
+        function onDrawStart(e) { 
 
-            if (drawingMode === 'annotation') {
-                const text = prompt('Annotation text:');
-                if (text && text.trim()) {
-                    drawings.push({
-                        type: 'annotation',
-                        x: startPoint.x,
-                        y: startPoint.y,
-                        text: text.trim()
-                    });
-                    redrawShapes();
-                }
-                isDrawing = false;
-                startPoint = null;
-                // Auto-exit annotation mode so the label doesn't keep following the mouse
-                setDrawingMode(null);
-                drawingCanvas.dispatchEvent(new CustomEvent('drawing:done', { bubbles: true }));
-                return;
-            }
-        }
+            if (!drawingMode) return; 
 
-        function onDrawMove(e) {
-            if (!isDrawing || !startPoint) return;
-            const cur = getMousePos(e);
+            isDrawing = true; 
 
-            // Live preview — redraw saved shapes plus the current one
-            redrawShapes();
-            drawingCtx.strokeStyle = drawColor();
-            drawingCtx.lineWidth = 1.5;
-            drawingCtx.beginPath();
+            startPoint = getMousePos(e); 
 
-            if (drawingMode === 'line') {
-                drawingCtx.moveTo(startPoint.x, startPoint.y);
-                drawingCtx.lineTo(cur.x, cur.y);
-            } else if (drawingMode === 'horizontal') {
-                drawingCtx.moveTo(0, startPoint.y);
-                drawingCtx.lineTo(drawingCanvas.width, startPoint.y);
-            }
-            drawingCtx.stroke();
-        }
+ 
 
-        function onDrawEnd(e) {
-            if (!isDrawing || !startPoint) return;
-            const end = getMousePos(e);
+            if (drawingMode === 'annotation') { 
 
-            if (drawingMode === 'line') {
-                drawings.push({
-                    type: 'line',
-                    x1: startPoint.x, y1: startPoint.y,
-                    x2: end.x,        y2: end.y
-                });
-            } else if (drawingMode === 'horizontal') {
-                drawings.push({
-                    type: 'horizontal',
-                    y: startPoint.y
-                });
-            }
+                const text = prompt('Annotation text:'); 
 
-            isDrawing = false;
-            startPoint = null;
-            redrawShapes();
-        }
+                if (text && text.trim()) { 
 
+                    drawings.push({ 
+
+                        type: 'annotation', 
+
+                        x: startPoint.x, 
+
+                        y: startPoint.y, 
+
+                        text: text.trim() 
+
+                    }); 
+
+                    redrawShapes(); 
+
+                } 
+
+                isDrawing = false; 
+
+                startPoint = null; 
+
+                // Auto-exit annotation mode so the label doesn't keep following the mouse 
+
+                setDrawingMode(null); 
+
+                drawingCanvas.dispatchEvent(new CustomEvent('drawing:done', { bubbles: true })); 
+
+                return; 
+
+            } 
+
+        } 
+
+ 
+
+        /** 
+
+         * Handle mousemove: render a live preview of the shape being drawn. 
+
+         * @param {MouseEvent} e 
+
+         */ 
+
+        function onDrawMove(e) { 
+
+            if (!isDrawing || !startPoint) return; 
+
+            const cur = getMousePos(e); 
+
+ 
+
+            // Live preview — redraw saved shapes plus the current one 
+
+            redrawShapes(); 
+
+            drawingCtx.strokeStyle = drawColor(); 
+
+            drawingCtx.lineWidth = 1.5; 
+
+            drawingCtx.beginPath(); 
+
+ 
+
+            if (drawingMode === 'line') { 
+
+                drawingCtx.moveTo(startPoint.x, startPoint.y); 
+
+                drawingCtx.lineTo(cur.x, cur.y); 
+
+            } else if (drawingMode === 'horizontal') { 
+
+                drawingCtx.moveTo(0, startPoint.y); 
+
+                drawingCtx.lineTo(drawingCanvas.width, startPoint.y); 
+
+            } 
+
+            drawingCtx.stroke(); 
+
+        } 
+
+ 
+
+        /** 
+
+         * Handle mouseup/mouseleave: commit the completed shape to the drawings list. 
+
+         * @param {MouseEvent} e 
+
+         */ 
+
+        function onDrawEnd(e) { 
+
+            if (!isDrawing || !startPoint) return; 
+
+            const end = getMousePos(e); 
+
+ 
+
+            if (drawingMode === 'line') { 
+
+                drawings.push({ 
+
+                    type: 'line', 
+
+                    x1: startPoint.x, y1: startPoint.y, 
+
+                    x2: end.x,        y2: end.y 
+
+                }); 
+
+            } else if (drawingMode === 'horizontal') { 
+
+                drawings.push({ 
+
+                    type: 'horizontal', 
+
+                    y: startPoint.y 
+
+                }); 
+
+            } 
+
+ 
+
+            isDrawing = false; 
+
+            startPoint = null; 
+
+            redrawShapes(); 
+
+        } 
+
+        /** Clear the overlay canvas and repaint all saved drawings. */
         function redrawShapes() {
             if (!drawingCtx || !drawingCanvas) return;
             drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
@@ -395,7 +500,7 @@ const ChartEngine = (function () {
             }
         }
 
-        // Auto-resize the chart and overlay when window resizes
+        /** Resize both the chart and the drawing canvas when the window resizes. */
         function handleResize() {
             chart.applyOptions({
                 width: container.clientWidth,
@@ -405,6 +510,7 @@ const ChartEngine = (function () {
         }
         window.addEventListener('resize', handleResize);
 
+        /** Remove all event listeners and destroy the chart instance. Call on page unload. */
         function destroy() {
             window.removeEventListener('resize', handleResize);
             if (drawingCanvas) {

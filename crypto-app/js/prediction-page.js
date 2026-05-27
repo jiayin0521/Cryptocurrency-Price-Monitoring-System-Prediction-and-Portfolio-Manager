@@ -27,6 +27,10 @@
         smaWindow:     7
     };
 
+    /**
+     * Entry point: build the page shell, populate the coin dropdown,
+     * and set up the theme observer to rebuild the chart on theme change.
+     */
     function init() {
         Utils.highlightActiveNav();
         renderPageShell();

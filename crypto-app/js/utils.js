@@ -122,6 +122,8 @@ const Utils = (function () {
         if (!container) {
             container = document.createElement('div');
             container.className = 'toast-container';
+            container.setAttribute('aria-live', 'assertive');
+            container.setAttribute('aria-atomic', 'true');
             document.body.appendChild(container);
         }
 
@@ -180,7 +182,7 @@ const Utils = (function () {
      * @param {string} message
      */
     function showError(container, message) {
-        container.innerHTML = '<div class="error-state">' +
+        container.innerHTML = '<div class="error-state" role="alert">' +
             '<div class="error-icon">⚠</div>' +
             '<div>' + message + '</div></div>';
     }
@@ -191,7 +193,7 @@ const Utils = (function () {
      * @param {string} message
      */
     function showLoading(container, message = 'Loading...') {
-        container.innerHTML = '<div class="loading-state">' +
+        container.innerHTML = '<div class="loading-state" role="status" aria-label="' + message + '">' +
             '<div class="loading-spinner"></div>' +
             '<div>' + message + '</div></div>';
     }

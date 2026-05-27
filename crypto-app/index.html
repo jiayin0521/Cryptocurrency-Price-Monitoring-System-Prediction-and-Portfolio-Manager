@@ -26,7 +26,7 @@
     <header class="site-header">
         <div class="header-container">
             <a href="index.html" class="logo">
-                <span class="logo-mark">F</span>
+                <span class="logo-mark">C</span>
                 <span>CrypCoin</span>
             </a>
             <nav class="main-nav">
@@ -74,18 +74,21 @@
         </div>
 
         <!-- Global market stats -->
-        <div id="global-stats" class="stat-grid">
+        <div id="global-stats" class="stat-grid"
+             aria-live="polite" aria-label="Global market statistics">
             <!-- Populated by dashboard.js -->
         </div>
 
         <!-- Search -->
-        <div class="search-wrapper">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="search-wrapper" role="search">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 aria-hidden="true">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
             <input type="text" id="search-input" class="search-input"
                    placeholder="Search by name or symbol (e.g. Bitcoin, BTC)..."
+                   aria-label="Search cryptocurrencies by name or symbol"
                    autocomplete="off">
         </div>
 
@@ -102,7 +105,8 @@
                         <th class="numeric hide-mobile">Volume (24h)</th>
                     </tr>
                 </thead>
-                <tbody id="coin-table-body">
+                <tbody id="coin-table-body"
+                       aria-live="polite" aria-label="Cryptocurrency prices">
                     <!-- Populated by dashboard.js -->
                 </tbody>
             </table>

@@ -16,7 +16,8 @@
     let refreshIntervalId = null;
 
     /**
-     * Initialize the dashboard when the DOM is ready.
+     * Initialize the dashboard: cache DOM references, wire up events, and
+     * trigger the first data load plus the 60-second auto-refresh interval.
      */
     function init() {
         Utils.highlightActiveNav();
@@ -38,13 +39,17 @@
 
     /**
      * Load top coins and global market data from the API.
+     * Shows a loading spinner on first load; uses a toast on subsequent refreshes.
      */
     async function loadDashboard() {
         try {
-            // Show loading only on first load
+            // Show loading only on first load.
+            // Use a querySelector instead of the cached tableBody reference because
+            // the tableBody may have been removed from the DOM by a previous loading
+            // state, making its parentElement null and causing a crash on retry.
             if (allCoins.length === 0) {
-                Utils.showLoading(elements.tableBody.parentElement.parentElement,
-                    'Loading market data...');
+                const wrapper = document.querySelector('.coin-table-wrapper');
+                if (wrapper) Utils.showLoading(wrapper, 'Loading market data...');
             }
 
             // Fetch in parallel for speed
@@ -158,7 +163,8 @@
     }
 
     /**
-     * Restore the table structure if it was replaced by an error/loading state.
+     * Restore the full table HTML if it was replaced by an error/loading state.
+     * Called by renderTable() before writing rows when #coin-table-body is missing.
      */
     function restoreTableStructure() {
         const wrapper = document.querySelector('main .coin-table-wrapper') ||

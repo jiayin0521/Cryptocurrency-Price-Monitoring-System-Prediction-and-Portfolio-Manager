@@ -1,28 +1,24 @@
 /* ==========================================================================
-   portfolio.js — Portfolio page logic
+   portfolio.js — Portfolio page state management and event handling
    --------------------------------------------------------------------------
-   This module handles the entire Portfolio page:
-   - Lists all holdings from localStorage (via Storage module)
-   - Fetches current prices and calculates P/L
-   - Renders the holdings table, summary cards, and allocation donut chart
-   - Handles add / edit / delete via a modal form
-   - Live coin search inside the add-holding form
+   This module owns the page's data lifecycle:
+   - Reads holdings from localStorage via Storage
+   - Fetches live prices via Api
+   - Computes per-holding profit/loss figures
+   - Delegates all DOM rendering to PortfolioRenderer (portfolio-render.js)
+   - Manages the add/edit modal and all CRUD operations
+
+   Load order: theme.js → utils.js → api.js → storage.js →
+               portfolio-render.js → portfolio.js
    ========================================================================== */
 
 (function () {
     'use strict';
 
-    // Color palette used to differentiate slices in the allocation donut.
-    // Cycles through these in order — works on both light and dark themes.
-    const SLICE_COLORS = [
-        '#1E5A8A', '#3B85C4', '#2E6B3F', '#B87B1F',
-        '#7E5BB3', '#B23A3A', '#5A7088', '#6FAF7E'
-    ];
-
     // Page state
-    let holdings = [];      // list of holdings from storage
-    let priceMap = {};      // { coinId: { usd, usd_24h_change } }
-    let coinSearchResults = []; // for the add-holding form
+    let holdings = [];           // list of holdings from storage
+    let priceMap = {};           // { coinId: { usd, usd_24h_change } }
+    let coinSearchResults = [];  // suggestions shown inside the add-holding form
 
     function init() {
         Utils.highlightActiveNav();
@@ -31,7 +27,7 @@
     }
 
     /**
-     * Wire up the controls that always exist on the page.
+     * Wire up the page-level controls that are always present in the HTML.
      */
     function wireStaticElements() {
         document.getElementById('add-holding-btn').addEventListener('click', openAddModal);
@@ -40,294 +36,50 @@
 
     /**
      * Reload holdings from storage, fetch current prices, and re-render.
+     * Shows a loading spinner while the price fetch is in flight.
      */
     async function loadPortfolio() {
         holdings = Storage.getAll();
 
-        // No holdings? Show empty state and stop.
         if (holdings.length === 0) {
-            renderEmptyState();
+            PortfolioRenderer.renderEmptyState(openAddModal);
             return;
         }
 
-        // Show loading spinner while prices are being fetched
         const statsEl = document.getElementById('summary-stats');
         if (statsEl && statsEl.innerHTML === '') {
             Utils.showLoading(statsEl, 'Loading prices...');
         }
 
-        // Fetch current prices for every coin in the portfolio
         try {
             const ids = Storage.getUniqueCoinIds();
             priceMap = await Api.getPrices(ids);
             renderAll();
         } catch (err) {
             Utils.showToast('Failed to load prices: ' + err.message, 'error');
-            // Render anyway with whatever data we have
+            // Still render so the user can see their holdings even without live prices
             priceMap = {};
             renderAll();
         }
     }
 
     /**
-     * Render everything: summary cards, holdings table, allocation donut.
+     * Compute enriched holding objects (with currentValue, cost, profit, profitPct)
+     * and delegate rendering to PortfolioRenderer.
      */
     function renderAll() {
-        // Compute aggregate values for every holding
         const enriched = holdings.map(function (h) {
-            const current = priceMap[h.coinId] ? priceMap[h.coinId].usd : null;
+            const current      = priceMap[h.coinId] ? priceMap[h.coinId].usd : null;
             const currentValue = current !== null ? current * h.amount : null;
-            const cost = h.amount * h.buyPrice;
-            const profit = currentValue !== null ? currentValue - cost : null;
-            const profitPct = (currentValue !== null && cost > 0) ? (profit / cost) * 100 : null;
-            return Object.assign({}, h, {
-                currentPrice: current,
-                currentValue: currentValue,
-                cost: cost,
-                profit: profit,
-                profitPct: profitPct
-            });
+            const cost         = h.amount * h.buyPrice;
+            const profit       = currentValue !== null ? currentValue - cost : null;
+            const profitPct    = (currentValue !== null && cost > 0) ? (profit / cost) * 100 : null;
+            return Object.assign({}, h, { currentPrice: current, currentValue, cost, profit, profitPct });
         });
 
-        renderSummary(enriched);
-        renderHoldingsTable(enriched);
-        renderAllocation(enriched);
-    }
-
-    /**
-     * Render the four summary cards at the top of the page.
-     */
-    function renderSummary(enriched) {
-        const totalValue = enriched.reduce(function (s, h) {
-            return s + (h.currentValue || 0);
-        }, 0);
-        const totalCost = enriched.reduce(function (s, h) { return s + h.cost; }, 0);
-        const totalProfit = totalValue - totalCost;
-        const totalProfitPct = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
-
-        const profitClass = Utils.priceChangeClass(totalProfit);
-
-        document.getElementById('summary-stats').innerHTML = `
-            <div class="stat-card">
-                <div class="stat-label">Portfolio value</div>
-                <div class="stat-value">${Utils.formatCurrency(totalValue)}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total cost</div>
-                <div class="stat-value">${Utils.formatCurrency(totalCost)}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Profit / loss</div>
-                <div class="stat-value"
-                     style="color: ${totalProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">
-                    ${Utils.formatCurrency(totalProfit)}
-                </div>
-                <div class="stat-change ${profitClass}">
-                    ${Utils.formatPercent(totalProfitPct)}
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Holdings</div>
-                <div class="stat-value">${enriched.length}</div>
-                <div class="stat-change">${holdings.length === 1 ? 'asset' : 'assets'}</div>
-            </div>
-        `;
-    }
-
-    /**
-     * Render the table of individual holdings.
-     */
-    function renderHoldingsTable(enriched) {
-        const wrapper = document.getElementById('holdings-section');
-        wrapper.innerHTML = `
-            <div class="card-header" style="padding: var(--space-4) var(--space-6); border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
-                <h2 class="card-title">Your holdings</h2>
-                <button id="add-holding-btn-inline" class="btn btn-primary btn-sm">+ Add holding</button>
-            </div>
-            <div class="holdings-table-wrapper">
-                <table class="holdings-table">
-                    <thead>
-                        <tr>
-                            <th>Asset</th>
-                            <th class="numeric">Amount</th>
-                            <th class="numeric hide-mobile">Buy price</th>
-                            <th class="numeric">Current price</th>
-                            <th class="numeric">Value</th>
-                            <th class="numeric">P/L</th>
-                            <th class="actions">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="holdings-tbody"></tbody>
-                </table>
-            </div>
-        `;
-
-        const tbody = document.getElementById('holdings-tbody');
-        tbody.innerHTML = enriched.map(function (h) {
-            const profitClass = h.profit !== null ? Utils.priceChangeClass(h.profit) : '';
-            return `
-                <tr>
-                    <td>
-                        <div class="coin-name-cell">
-                            <img src="${h.coinImage}" alt="${h.coinName}" class="coin-icon"
-                                 onerror="this.style.visibility='hidden'">
-                            <div>
-                                <span class="coin-name">${escapeHtml(h.coinName)}</span>
-                                <span class="coin-symbol">${escapeHtml(h.coinSymbol)}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="numeric">${Utils.formatNumber(h.amount, 8).replace(/\.?0+$/, '')}</td>
-                    <td class="numeric hide-mobile">${Utils.formatCurrency(h.buyPrice)}</td>
-                    <td class="numeric">${h.currentPrice !== null ? Utils.formatCurrency(h.currentPrice) : '—'}</td>
-                    <td class="numeric">${h.currentValue !== null ? Utils.formatCurrency(h.currentValue) : '—'}</td>
-                    <td class="numeric">
-                        ${h.profit !== null
-                            ? '<span class="price-change ' + profitClass + '">' +
-                              Utils.formatPercent(h.profitPct) +
-                              '</span>'
-                            : '—'}
-                    </td>
-                    <td class="actions">
-                        <div class="row-actions">
-                            <button class="icon-btn" data-action="edit" data-id="${h.id}" title="Edit">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                </svg>
-                            </button>
-                            <button class="icon-btn danger" data-action="delete" data-id="${h.id}" title="Delete">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"/>
-                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                    <path d="M10 11v6M14 11v6"/>
-                                    <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-
-        // Wire up row action buttons
-        tbody.querySelectorAll('button[data-action]').forEach(function (btn) {
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                const action = btn.getAttribute('data-action');
-                const id = btn.getAttribute('data-id');
-                if (action === 'edit')   openEditModal(id);
-                if (action === 'delete') confirmDelete(id);
-            });
-        });
-
-        // Wire the inline add button (the one that lives inside the table card)
-        const inlineAdd = document.getElementById('add-holding-btn-inline');
-        if (inlineAdd) inlineAdd.addEventListener('click', openAddModal);
-    }
-
-    /**
-     * Render the allocation donut chart using SVG (drawn from scratch).
-     * @param {Array} enriched
-     */
-    function renderAllocation(enriched) {
-        const container = document.getElementById('allocation-section');
-        const totalValue = enriched.reduce(function (s, h) {
-            return s + (h.currentValue || 0);
-        }, 0);
-
-        if (totalValue <= 0) {
-            container.innerHTML = `
-                <div class="allocation-card">
-                    <h3 class="card-title">Allocation</h3>
-                    <p class="empty-state" style="padding: var(--space-6) 0;">
-                        Add holdings to see allocation.
-                    </p>
-                </div>
-            `;
-            return;
-        }
-
-        // Compute slice fractions and sort largest first
-        const slices = enriched
-            .filter(h => h.currentValue !== null && h.currentValue > 0)
-            .map(function (h, i) {
-                return {
-                    label: h.coinSymbol.toUpperCase(),
-                    value: h.currentValue,
-                    fraction: h.currentValue / totalValue
-                };
-            })
-            .sort((a, b) => b.value - a.value);
-
-        // Assign colors (cycle through palette)
-        slices.forEach((s, i) => { s.color = SLICE_COLORS[i % SLICE_COLORS.length]; });
-
-        // Build the SVG donut. We use stroke-dasharray on a <circle> — each
-        // slice is a separate circle with the right dash pattern and offset.
-        const radius = 80;
-        const circumference = 2 * Math.PI * radius;
-        let offset = 0;
-
-        const sliceSvg = slices.map(function (s) {
-            const dash = s.fraction * circumference;
-            const gap  = circumference - dash;
-            const circle = `<circle cx="100" cy="100" r="${radius}"
-                fill="none" stroke="${s.color}" stroke-width="28"
-                stroke-dasharray="${dash} ${gap}"
-                stroke-dashoffset="${-offset}"
-                transform="rotate(-90 100 100)"/>`;
-            offset += dash;
-            return circle;
-        }).join('');
-
-        const legendItems = slices.map(function (s) {
-            return `
-                <li>
-                    <span class="legend-label">
-                        <span class="legend-swatch" style="background:${s.color}"></span>
-                        ${escapeHtml(s.label)}
-                    </span>
-                    <span class="legend-percent">${s.fraction * 100 < 0.01 ? '<0.01%' : (s.fraction * 100).toFixed(2) + '%'}</span>
-                </li>
-            `;
-        }).join('');
-
-        container.innerHTML = `
-            <div class="allocation-card">
-                <h3 class="card-title">Allocation</h3>
-                <svg class="allocation-svg" viewBox="0 0 200 200">
-                    ${sliceSvg}
-                    <text x="100" y="96" text-anchor="middle"
-                          font-size="11" fill="var(--text-secondary)">Total</text>
-                    <text x="100" y="114" text-anchor="middle"
-                          font-size="14" font-weight="600" fill="var(--text-primary)">
-                        ${Utils.formatLargeNumber(totalValue)}
-                    </text>
-                </svg>
-                <ul class="allocation-legend">${legendItems}</ul>
-            </div>
-        `;
-    }
-
-    /**
-     * Render the empty-state message when no holdings exist yet.
-     */
-    function renderEmptyState() {
-        document.getElementById('summary-stats').innerHTML = '';
-        document.getElementById('allocation-section').innerHTML = '';
-        document.getElementById('holdings-section').innerHTML = `
-            <div class="card empty-state" style="padding: var(--space-12) var(--space-6);">
-                <h2 style="font-size: 18px; color: var(--text-primary); margin-bottom: var(--space-2);">
-                    Your portfolio is empty
-                </h2>
-                <p style="margin-bottom: var(--space-6);">
-                    Add your first holding to start tracking your cryptocurrency investments.
-                </p>
-                <button id="empty-add-btn" class="btn btn-primary">+ Add your first holding</button>
-            </div>
-        `;
-        document.getElementById('empty-add-btn').addEventListener('click', openAddModal);
+        PortfolioRenderer.renderSummary(enriched);
+        PortfolioRenderer.renderHoldingsTable(enriched, openEditModal, confirmDelete, openAddModal);
+        PortfolioRenderer.renderAllocation(enriched);
     }
 
 
@@ -335,32 +87,24 @@
     // ADD / EDIT MODAL
     // ====================================================================
 
-    /**
-     * Open the modal in "add new holding" mode.
-     */
+    /** Open the modal in "add new holding" mode. */
     function openAddModal() {
-        showModal({
-            title: 'Add holding',
-            holding: null
-        });
+        showModal({ title: 'Add holding', holding: null });
     }
 
     /**
      * Open the modal in "edit existing holding" mode.
-     * @param {string} id
+     * @param {string} id  Storage ID of the holding to edit.
      */
     function openEditModal(id) {
         const holding = Storage.findById(id);
         if (!holding) return;
-        showModal({
-            title: 'Edit holding',
-            holding: holding
-        });
+        showModal({ title: 'Edit holding', holding });
     }
 
     /**
-     * Render the add/edit modal.
-     * @param {object} options { title, holding }
+     * Build and display the add/edit modal overlay.
+     * @param {{title: string, holding: object|null}} options
      */
     function showModal(options) {
         const isEdit = !!options.holding;
@@ -369,7 +113,7 @@
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
         overlay.innerHTML = `
-            <div class="modal" role="dialog" aria-labelledby="modal-title">
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
                 <h2 id="modal-title" class="modal-title">${options.title}</h2>
 
                 <div class="form-group">
@@ -377,12 +121,13 @@
                     <div class="coin-selector-wrapper">
                         <input type="text" id="form-coin" class="form-input"
                                placeholder="Search by name or symbol..."
-                               value="${isEdit ? escapeHtml(h.coinName) : ''}"
+                               value="${isEdit ? PortfolioRenderer.escapeHtml(h.coinName) : ''}"
                                autocomplete="off"
                                ${isEdit ? 'disabled' : ''}>
-                        <div id="coin-suggestions" class="coin-suggestions"></div>
+                        <div id="coin-suggestions" class="coin-suggestions"
+                             role="listbox" aria-label="Coin search results"></div>
                     </div>
-                    <div class="form-error" id="err-coin"></div>
+                    <div class="form-error" id="err-coin" role="alert"></div>
                 </div>
 
                 <div class="form-grid">
@@ -391,14 +136,14 @@
                         <input type="number" id="form-amount" class="form-input"
                                placeholder="0.00" step="any" min="0"
                                value="${isEdit ? h.amount : ''}">
-                        <div class="form-error" id="err-amount"></div>
+                        <div class="form-error" id="err-amount" role="alert"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="form-price">Buy price (USD)</label>
                         <input type="text" id="form-price" class="form-input"
                                placeholder="e.g. 0.00000002354" inputmode="decimal"
                                value="${isEdit ? h.buyPrice : ''}">
-                        <div class="form-error" id="err-price"></div>
+                        <div class="form-error" id="err-price" role="alert"></div>
                     </div>
                 </div>
 
@@ -412,7 +157,7 @@
                     <label class="form-label" for="form-notes">Notes (optional)</label>
                     <input type="text" id="form-notes" class="form-input"
                            placeholder="e.g. Long-term hold"
-                           value="${isEdit ? escapeHtml(h.notes) : ''}">
+                           value="${isEdit ? PortfolioRenderer.escapeHtml(h.notes) : ''}">
                 </div>
 
                 <div class="form-actions">
@@ -426,21 +171,20 @@
 
         document.body.appendChild(overlay);
 
-        // Internal state for the selected coin (only matters in add mode)
+        // Track the coin selected from the dropdown (only relevant when adding)
         let selectedCoin = isEdit ? {
             id: h.coinId, name: h.coinName, symbol: h.coinSymbol, large: h.coinImage
         } : null;
 
-        // Close behaviors
         function close() { overlay.remove(); }
         overlay.querySelector('#form-cancel').addEventListener('click', close);
         overlay.addEventListener('click', function (e) {
             if (e.target === overlay) close();
         });
 
-        // Coin search (only when adding new)
+        // Live coin search — only active in add mode
         if (!isEdit) {
-            const searchInput = overlay.querySelector('#form-coin');
+            const searchInput    = overlay.querySelector('#form-coin');
             const suggestionsBox = overlay.querySelector('#coin-suggestions');
 
             const doSearch = Utils.debounce(async function () {
@@ -465,13 +209,13 @@
                 }
                 suggestionsBox.innerHTML = coinSearchResults.map(function (c) {
                     return `
-                        <div class="suggestion-item" data-id="${c.id}">
+                        <div class="suggestion-item" data-id="${c.id}" role="option">
                             <img src="${c.thumb || c.large || ''}" class="suggestion-icon"
                                  onerror="this.style.visibility='hidden'">
                             <div>
-                                <div style="font-weight:500;">${escapeHtml(c.name)}</div>
+                                <div style="font-weight:500;">${PortfolioRenderer.escapeHtml(c.name)}</div>
                                 <div style="font-size:12px; color:var(--text-secondary); text-transform:uppercase;">
-                                    ${escapeHtml(c.symbol)}
+                                    ${PortfolioRenderer.escapeHtml(c.symbol)}
                                 </div>
                             </div>
                         </div>
@@ -481,11 +225,11 @@
 
                 suggestionsBox.querySelectorAll('.suggestion-item').forEach(function (el) {
                     el.addEventListener('click', function () {
-                        const id = el.getAttribute('data-id');
+                        const id   = el.getAttribute('data-id');
                         const coin = coinSearchResults.find(c => c.id === id);
                         if (!coin) return;
-                        selectedCoin = coin;
-                        searchInput.value = coin.name;
+                        selectedCoin        = coin;
+                        searchInput.value   = coin.name;
                         suggestionsBox.classList.remove('open');
                     });
                 });
@@ -497,21 +241,22 @@
             });
         }
 
-        // Save button
         overlay.querySelector('#form-save').addEventListener('click', function () {
             if (validateAndSave(overlay, selectedCoin, options.holding)) close();
         });
     }
 
     /**
-     * Validate the form and save (create or update).
-     * Returns true on success.
+     * Validate the modal form and persist the new or updated holding.
+     * @param {HTMLElement} overlay       The modal overlay element.
+     * @param {object|null} selectedCoin  Coin chosen from search suggestions (add mode).
+     * @param {object|null} existingHolding  Existing holding object (edit mode) or null.
+     * @returns {boolean} true if validation passed and the record was saved.
      */
     function validateAndSave(overlay, selectedCoin, existingHolding) {
         const isEdit = !!existingHolding;
 
-        // Clear previous errors
-        overlay.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+        overlay.querySelectorAll('.form-error').forEach(el => (el.textContent = ''));
 
         const amountStr = overlay.querySelector('#form-amount').value;
         const priceStr  = overlay.querySelector('#form-price').value;
@@ -535,12 +280,7 @@
         if (!valid) return false;
 
         if (isEdit) {
-            Storage.update(existingHolding.id, {
-                amount:   amountStr,
-                buyPrice: priceStr,
-                buyDate:  date,
-                notes:    notes
-            });
+            Storage.update(existingHolding.id, { amount: amountStr, buyPrice: priceStr, buyDate: date, notes });
             Utils.showToast('Holding updated', 'success');
         } else {
             Storage.create({
@@ -551,7 +291,7 @@
                 amount:     amountStr,
                 buyPrice:   priceStr,
                 buyDate:    date,
-                notes:      notes
+                notes
             });
             Utils.showToast('Holding added', 'success');
         }
@@ -561,46 +301,30 @@
     }
 
     /**
-     * Confirm and delete a holding.
-     * @param {string} id
+     * Ask the user to confirm deletion of a single holding, then remove it.
+     * @param {string} id  Storage ID of the holding.
      */
     function confirmDelete(id) {
         const h = Storage.findById(id);
         if (!h) return;
-        const ok = confirm('Delete your ' + h.coinName + ' holding? This cannot be undone.');
-        if (!ok) return;
+        if (!confirm('Delete your ' + h.coinName + ' holding? This cannot be undone.')) return;
         Storage.remove(id);
         Utils.showToast('Holding deleted', 'success');
         loadPortfolio();
     }
 
     /**
-     * Confirm and reset the entire portfolio.
+     * Ask the user to confirm a full portfolio reset, then clear all holdings.
      */
     function confirmReset() {
         if (Storage.getAll().length === 0) {
             Utils.showToast('Portfolio is already empty', 'warning');
             return;
         }
-        const ok = confirm('Delete ALL holdings? This cannot be undone.');
-        if (!ok) return;
+        if (!confirm('Delete ALL holdings? This cannot be undone.')) return;
         Storage.clear();
         Utils.showToast('Portfolio cleared', 'success');
         loadPortfolio();
-    }
-
-    /**
-     * Escape user-supplied text for safe insertion into HTML.
-     * Prevents XSS if a user puts HTML in the notes field.
-     */
-    function escapeHtml(str) {
-        if (str === null || str === undefined) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
     }
 
     if (document.readyState === 'loading') {

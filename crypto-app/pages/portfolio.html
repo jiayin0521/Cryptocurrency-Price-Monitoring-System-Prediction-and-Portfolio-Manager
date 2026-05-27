@@ -24,7 +24,7 @@
     <header class="site-header">
         <div class="header-container">
             <a href="../index.html" class="logo">
-                <span class="logo-mark">F</span>
+                <span class="logo-mark">C</span>
                 <span>CrypCoin</span>
             </a>
             <nav class="main-nav">
@@ -76,12 +76,13 @@
         </div>
 
         <!-- Summary stats -->
-        <div id="summary-stats" class="stat-grid"></div>
+        <div id="summary-stats" class="stat-grid"
+             aria-live="polite" aria-label="Portfolio summary statistics"></div>
 
         <!-- Two-column section: holdings table + allocation donut -->
         <div class="portfolio-summary">
-            <div id="holdings-section"></div>
-            <div id="allocation-section"></div>
+            <div id="holdings-section" aria-live="polite" aria-label="Holdings list"></div>
+            <div id="allocation-section" aria-live="polite" aria-label="Portfolio allocation chart"></div>
         </div>
 
     </main>
@@ -97,6 +98,7 @@
     <script src="../js/utils.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/storage.js"></script>
+    <script src="../js/portfolio-render.js"></script>
     <script src="../js/portfolio.js"></script>
 </body>
 </html>

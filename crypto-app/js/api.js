@@ -20,6 +20,13 @@ const Api = (function () {
 
     // ── Core fetch with cache + timeout + retry ───────────────────────────────
 
+    /**
+     * Fetch a JSON URL with in-memory caching, a 10-second timeout, and up
+     * to MAX_RETRIES automatic retries on transient network errors.
+     * @param {string} url  Fully-qualified URL to fetch.
+     * @returns {Promise<any>} Parsed JSON response.
+     * @throws {Error} 'rate_limit' | 'not_found' | AbortError | network error
+     */
     async function fetchJSON(url) {
         const cached = cache.get(url);
         if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
@@ -46,12 +53,24 @@ const Api = (function () {
             } catch (err) {
                 clearTimeout(tid);
                 if (err.message === 'rate_limit' || err.message === 'not_found') throw err;
-                lastErr = err;
+                // Give the user a readable message for request timeouts
+                if (err.name === 'AbortError') {
+                    lastErr = new Error('Request timed out. Please check your connection.');
+                } else {
+                    lastErr = err;
+                }
             }
         }
         throw lastErr;
     }
 
+    /**
+     * Build a CoinGecko API URL, filtering out blank params and appending the
+     * demo API key.
+     * @param {string} endpoint  Path starting with '/', e.g. '/coins/markets'.
+     * @param {object} [params]  Query-string key/value pairs.
+     * @returns {string} Full URL ready for fetchJSON.
+     */
     function cgUrl(endpoint, params = {}) {
         const clean = Object.fromEntries(
             Object.entries(params).filter(([, v]) => v !== '' && v !== null && v !== undefined)
@@ -63,6 +82,11 @@ const Api = (function () {
 
     // ── CoinCap fallback (chart data only) ────────────────────────────────────
 
+    /**
+     * Map a day range to the appropriate CoinCap history interval string.
+     * @param {number} days
+     * @returns {'m30'|'h2'|'h6'|'d1'}
+     */
     function ccInterval(days) {
         if (days <= 1)  return 'm30';
         if (days <= 7)  return 'h2';
@@ -70,6 +94,13 @@ const Api = (function () {
         return 'd1';
     }
 
+    /**
+     * Fetch market-chart data from CoinCap and reshape it to match the
+     * CoinGecko market_chart response format { prices, market_caps, total_volumes }.
+     * @param {string} coinId  CoinCap asset ID (usually the same as CoinGecko ID).
+     * @param {number} days    Number of days of history to retrieve.
+     * @returns {Promise<{prices: Array, market_caps: Array, total_volumes: Array}>}
+     */
     async function ccMarketChart(coinId, days) {
         const now   = Date.now();
         const start = now - days * 24 * 60 * 60 * 1000;
@@ -83,6 +114,12 @@ const Api = (function () {
 
     // ── Public API ────────────────────────────────────────────────────────────
 
+    /**
+     * Fetch the top N coins by market cap.
+     * @param {number} [limit=50]     Number of coins to return (max 250).
+     * @param {string} [currency='usd'] Target fiat currency.
+     * @returns {Promise<Array>}
+     */
     function getTopCoins(limit = 50, currency = 'usd') {
         return fetchJSON(cgUrl('/coins/markets', {
             vs_currency: currency,
@@ -94,6 +131,11 @@ const Api = (function () {
         }));
     }
 
+    /**
+     * Search for coins by name or symbol.
+     * @param {string} query  User-entered search term.
+     * @returns {Promise<Array>} Array of coin objects with id, name, symbol, thumb.
+     */
     async function searchCoins(query) {
         const data = await fetchJSON(cgUrl('/search', { query }));
         return data.coins || [];
@@ -109,6 +151,12 @@ const Api = (function () {
         }));
     }
 
+    /**
+     * Fetch OHLC (open/high/low/close) candlestick data for a coin.
+     * @param {string} coinId  CoinGecko coin ID.
+     * @param {number} [days=30]  Lookback period in days.
+     * @returns {Promise<Array<[timestamp, open, high, low, close]>>}
+     */
     function getOHLC(coinId, days = 30) {
         return fetchJSON(cgUrl('/coins/' + encodeURIComponent(coinId) + '/ohlc', {
             vs_currency: 'usd',
@@ -116,7 +164,13 @@ const Api = (function () {
         }));
     }
 
-    // Market chart: CoinGecko first, silent CoinCap fallback on failure
+    /**
+     * Fetch price history for a coin. Tries CoinGecko first; if that fails,
+     * transparently retries with CoinCap and notifies the user via a toast.
+     * @param {string} coinId  CoinGecko coin ID.
+     * @param {number} [days=30]  Lookback period in days.
+     * @returns {Promise<{prices: Array, market_caps: Array, total_volumes: Array}>}
+     */
     async function getMarketChart(coinId, days = 30) {
         const params = { vs_currency: 'usd', days };
         if (days > 90) params.interval = 'daily';
@@ -124,7 +178,12 @@ const Api = (function () {
             return await fetchJSON(cgUrl('/coins/' + encodeURIComponent(coinId) + '/market_chart', params));
         } catch (cgErr) {
             try {
-                return await ccMarketChart(coinId, days);
+                const data = await ccMarketChart(coinId, days);
+                // Let the user know they are seeing data from the backup source
+                if (typeof Utils !== 'undefined') {
+                    Utils.showToast('Using backup data source (CoinCap) — chart data may be limited.', 'warning', 4000);
+                }
+                return data;
             } catch {
                 if (cgErr.message === 'not_found') throw new Error('Cryptocurrency not found.');
                 throw new Error('Could not load chart data. Please try again in a moment.');
@@ -132,6 +191,11 @@ const Api = (function () {
         }
     }
 
+    /**
+     * Fetch current USD prices (and 24-hour change) for a list of coins.
+     * @param {string[]} coinIds  Array of CoinGecko coin IDs.
+     * @returns {Promise<Object>} Map of { coinId: { usd, usd_24h_change } }.
+     */
     function getPrices(coinIds) {
         if (!coinIds || coinIds.length === 0) return Promise.resolve({});
         return fetchJSON(cgUrl('/simple/price', {
@@ -141,6 +205,10 @@ const Api = (function () {
         }));
     }
 
+    /**
+     * Fetch global crypto market statistics (total market cap, BTC dominance, etc.).
+     * @returns {Promise<Object>} CoinGecko global data object.
+     */
     async function getGlobalData() {
         const result = await fetchJSON(cgUrl('/global'));
         return result.data;

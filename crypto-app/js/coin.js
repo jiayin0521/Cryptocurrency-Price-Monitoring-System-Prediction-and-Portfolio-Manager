@@ -23,6 +23,10 @@
     let activeIndicators = { ma20: false, ma50: false };
     let refreshTimer = null;
 
+    /**
+     * Entry point: read the coin ID from the URL, set up the theme observer,
+     * and trigger the initial data load.
+     */
     function init() {
         Utils.highlightActiveNav();
 
@@ -72,8 +76,11 @@
         }
     }
 
-    // Silently pre-fetch all other time ranges so switching is instant from cache.
-    // Staggered 2 seconds apart to avoid triggering CoinGecko rate limits.
+    /**
+     * Silently pre-fetch all remaining time ranges into the API cache.
+     * Requests are staggered 2 seconds apart to avoid CoinGecko rate limits.
+     * Errors are swallowed — this is a best-effort optimisation only.
+     */
     function prefetchRanges() {
         const allRanges = [1, 7, 30, 90, 365];
         allRanges.filter(r => r !== currentRange).forEach(function (days, i) {
