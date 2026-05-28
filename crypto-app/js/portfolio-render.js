@@ -97,10 +97,10 @@ const PortfolioRenderer = (function () {
                     <thead>
                         <tr>
                             <th scope="col">Asset</th>
-                            <th scope="col" class="numeric">Amount</th>
+                            <th scope="col" class="numeric hide-mobile">Amount</th>
                             <th scope="col" class="numeric hide-mobile">Buy price</th>
                             <th scope="col" class="numeric">Current price</th>
-                            <th scope="col" class="numeric">Value</th>
+                            <th scope="col" class="numeric hide-mobile">Value</th>
                             <th scope="col" class="numeric">P/L</th>
                             <th scope="col" class="actions">Actions</th>
                         </tr>
@@ -125,10 +125,10 @@ const PortfolioRenderer = (function () {
                             </div>
                         </div>
                     </td>
-                    <td class="numeric">${Utils.formatNumber(h.amount, 8).replace(/\.?0+$/, '')}</td>
+                    <td class="numeric hide-mobile">${Utils.formatNumber(h.amount, 8).replace(/\.?0+$/, '')}</td>
                     <td class="numeric hide-mobile">${Utils.formatCurrency(h.buyPrice)}</td>
                     <td class="numeric">${h.currentPrice !== null ? Utils.formatCurrency(h.currentPrice) : '—'}</td>
-                    <td class="numeric">${h.currentValue !== null ? Utils.formatCurrency(h.currentValue) : '—'}</td>
+                    <td class="numeric hide-mobile">${h.currentValue !== null ? Utils.formatCurrency(h.currentValue) : '—'}</td>
                     <td class="numeric">
                         ${h.profit !== null
                             ? '<span class="price-change ' + profitClass + '">' +

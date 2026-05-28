@@ -153,10 +153,13 @@
             `;
         }).join('');
 
-        // Wire up row clicks to open the coin detail page
+        // Wire up row clicks to open the coin detail page.
+        // sessionStorage is written as a fallback for mobile browsers on file://
+        // where window.location.search may not be parsed correctly.
         elements.tableBody.querySelectorAll('tr[data-coin-id]').forEach(function (row) {
             row.addEventListener('click', function () {
                 const coinId = row.getAttribute('data-coin-id');
+                try { sessionStorage.setItem('crypcoin-pending-coin', coinId); } catch (e) {}
                 window.location.href = 'pages/coin.html?id=' + encodeURIComponent(coinId);
             });
         });

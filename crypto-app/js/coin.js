@@ -30,8 +30,13 @@
     function init() {
         Utils.highlightActiveNav();
 
-        // Get coin id from URL
+        // Get coin ID from the URL query string.
+        // Fall back to sessionStorage for mobile browsers on file:// protocol
+        // where URLSearchParams may not parse window.location.search.
         coinId = Utils.getQueryParam('id');
+        if (!coinId) {
+            try { coinId = sessionStorage.getItem('crypcoin-pending-coin'); } catch (e) {}
+        }
         if (!coinId) {
             Utils.showError(document.getElementById('coin-content'),
                 'No cryptocurrency selected. <a href="../index.html">Back to dashboard</a>.');

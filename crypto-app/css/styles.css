@@ -432,6 +432,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
     border-radius: var(--radius-sm);
     font-size: 13px;
     display: inline-block;
+    white-space: nowrap;    /* prevent +/- sign from wrapping on narrow screens */
 }
 
 .price-change.positive { color: var(--success); background: var(--success-bg); }
@@ -730,6 +731,8 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
     max-width: 480px;
     width: 100%;
     box-shadow: var(--shadow-md);
+    max-height: 90vh;       /* prevent modal from overflowing phone screens */
+    overflow-y: auto;
 }
 
 .modal-title {
@@ -1155,17 +1158,26 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
     .page-container { padding: var(--space-5) var(--space-4); }
     .page-title { font-size: 22px; }
     .stat-grid { grid-template-columns: repeat(2, 1fr); }
-    .coin-table th.hide-mobile, .coin-table td.hide-mobile { display: none; }
+    .coin-table th.hide-mobile,
+    .coin-table td.hide-mobile,
+    .holdings-table th.hide-mobile,
+    .holdings-table td.hide-mobile { display: none; }
     .coin-table th, .coin-table td { padding: var(--space-3); }
+    .holdings-table th, .holdings-table td { padding: var(--space-3) var(--space-2); font-size: 13px; }
     .chart-container { height: 380px; }
     .chart-area { height: 320px; }
     .coin-detail-price { font-size: 24px; }
     .portfolio-summary { grid-template-columns: 1fr; }
     .about-hero { padding: var(--space-6); }
     .about-hero h2 { font-size: 18px; }
+    .modal { padding: var(--space-4); border-radius: var(--radius-md); }
+    .form-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
     .stat-grid { grid-template-columns: 1fr; }
     .logo span { display: none; }
+    .coin-table th, .coin-table td { padding: var(--space-2) var(--space-2); font-size: 12px; }
+    .coin-icon { width: 22px; height: 22px; }
+    .price-change { font-size: 11px; padding: 2px 4px; }
 }
